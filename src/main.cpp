@@ -9,19 +9,107 @@
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
-// put function declarations here:
-int myFunction(int, int);
+TaskHandle_t ledTaskHandle;
+TaskHandle_t sensorTaskHandle;
+TaskHandle_t panicTaskHandle;
+TaskHandle_t serialTaskHandle;
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+QueueHandle_t sensorQueue;
+
+volatile bool panicTriggered = false;
+
+typedef struct { 
+  float temperature;
+  float humidity;
+}sensorData;
+
+void ledTask(void *pvParameters) 
+{
+  while(true) 
+  {
+    Serial.println("LED Task Running");
+    if(panicTriggered)
+    {
+      digitalWrite(LED_PIN, HIGH);
+      Serial.println("Panic Mode: LED ON");
+      vTaskSuspend(NULL);
+    }
+
+    digitalWrite(LED_PIN, HIGH);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
+
+    digitalWrite(LED_PIN, LOW);
+    vTaskDelay(250 / portTICK_PERIOD_MS);
+  }
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void sensorTask(void *pvParameters)
+{
+  sensorData data_s ;
+  while(true)
+  {
+    if(panicTriggered)
+      vTaskSuspend(NULL);
+
+    data_s.temperature = dht.readTemperature();
+    data_s.humidity = dht.readHumidity();
+
+    if(!isnan(data_s.temperature) && !isnan(data_s.humidity))
+      xQueueSend(sensorQueue, &data_s, portMAX_DELAY);
+    
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+  }
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void serialTask(void *pvParameters)
+{
+  sensorData data_r;
+
+  while (true)
+  {
+    if(xQueueReceive(sensorQueue, &data_r, portMAX_DELAY))
+    {
+      Serial.print("Temperature: ");
+      Serial.print(data_r.temperature);
+      Serial.print(" °C, Humidity: ");
+      Serial.print(data_r.humidity);
+      Serial.println(" %");
+    }
+  }
+  
+}
+
+void panicTask(void *pvParameters)
+{
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  while(true)
+  {
+    if(digitalRead(BUTTON_PIN)==LOW)
+    {
+      panicTriggered = true;
+      vTaskSuspend(ledTaskHandle);
+      vTaskSuspend(sensorTaskHandle);
+      vTaskSuspend(serialTaskHandle);
+      Serial.println("Panic Button Pressed! All tasks stopped.");
+      vTaskSuspend(NULL);
+    }
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+  }
+}
+
+void setup() 
+{
+  Serial.begin(115200);
+  dht.begin();
+
+  sensorQueue = xQueueCreate(5, sizeof(sensorData));
+  xTaskCreatePinnedToCore(ledTask, "LED Task", 1000, NULL, 1, &ledTaskHandle, 0);
+  xTaskCreatePinnedToCore(sensorTask, "Sensor Task", 2000, NULL, 1, &sensorTaskHandle, 0);
+  xTaskCreatePinnedToCore(serialTask, "Serial Task", 2000, NULL, 1, &serialTaskHandle, 1);
+  xTaskCreatePinnedToCore(panicTask, "Panic Task", 1000, NULL, 2, &panicTaskHandle, 0);
+}
+
+void loop()
+{
+
 }

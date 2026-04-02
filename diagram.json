@@ -10,14 +10,20 @@
       "left": 4.84,
       "attrs": { "builder": "esp-idf" }
     },
-    { "type": "wokwi-led", "id": "led1", "top": -32.4, "left": 32.6, "attrs": { "color": "red" } },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -32.4,
+      "left": 33,
+      "attrs": { "color": "red", "flip": "1" }
+    },
     {
       "type": "wokwi-resistor",
       "id": "r1",
       "top": 100.8,
       "left": -77.35,
       "rotate": 90,
-      "attrs": { "value": "330000" }
+      "attrs": { "value": "220000" }
     },
     {
       "type": "wokwi-pushbutton",
@@ -31,14 +37,14 @@
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "led1:A", "esp:GND.2", "green", [ "v19.2", "h-158.44" ] ],
-    [ "led1:C", "r1:1", "red", [ "v26.4", "h-98.4" ] ],
-    [ "r1:2", "esp:2", "red", [ "v152.4", "h153.6" ] ],
+    [ "r1:2", "esp:2", "red", [ "v152.4", "h182.4", "v-67.2" ] ],
     [ "esp:4", "btn1:2.l", "orange", [ "h0" ] ],
     [ "btn1:1.l", "esp:GND.2", "green", [ "v-67.2" ] ],
-    [ "dht1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "dht1:VCC", "esp:3V3", "red", [ "h-201.75" ] ],
     [ "dht1:GND", "esp:GND.2", "black", [ "v0" ] ],
-    [ "dht1:SDA", "esp:21", "green", [ "v0" ] ]
+    [ "dht1:SDA", "esp:21", "green", [ "v0" ] ],
+    [ "led1:A", "r1:1", "red", [ "v19.2", "h-95.6" ] ],
+    [ "led1:C", "esp:GND.2", "green", [ "h48", "v76.8" ] ]
   ],
   "dependencies": {}
 }
