@@ -30,7 +30,7 @@ void ledTask(void *pvParameters)
     Serial.println("LED Task Running");
     if(panicTriggered)
     {
-      digitalWrite(LED_PIN, HIGH);
+      digitalWrite(LED_PIN, LOW);
       Serial.println("Panic Mode: LED ON");
       vTaskSuspend(NULL);
     }
@@ -101,6 +101,7 @@ void setup()
 {
   Serial.begin(115200);
   dht.begin();
+  pinMode(LED_PIN, OUTPUT);
 
   sensorQueue = xQueueCreate(5, sizeof(sensorData));
   xTaskCreatePinnedToCore(ledTask, "LED Task", 1000, NULL, 1, &ledTaskHandle, 0);
