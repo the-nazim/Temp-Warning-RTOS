@@ -57,9 +57,7 @@ The firmware creates four FreeRTOS tasks:
 ## Expected Serial Output
 
 ```text
-LED Task Running
 Temperature: 27.10 °C, Humidity: 61.00 %
-LED Task Running
 Temperature: 27.20 °C, Humidity: 60.80 %
 Panic Button Pressed! All tasks stopped.
 ```

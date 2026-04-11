@@ -27,11 +27,11 @@ void ledTask(void *pvParameters)
 {
   while(true) 
   {
-    Serial.println("LED Task Running");
+    // Serial.println("LED Task Running");
     if(panicTriggered)
     {
       digitalWrite(LED_PIN, LOW);
-      Serial.println("Panic Mode: LED ON");
+      // Serial.println("Panic Mode: LED ON");
       vTaskSuspend(NULL);
     }
 
