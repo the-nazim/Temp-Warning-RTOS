@@ -100,13 +100,7 @@ pio device monitor
 
 ## Image / Screenshot
 
-`assets/circuite`
-
-Paste your project image here after adding it to the repository, for example in an `assets/` folder:
-
-```md
 ![Circuit Screenshot](assets/circuite.png)
-```
 
 ## Notes
 
